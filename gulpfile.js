@@ -183,7 +183,7 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 		if (!fs.existsSync(file)) {
 			reject({
 				code:404,
-				mmessage:'文件不存在', 
+				message:'文件不存在', 
 				extra:{file:file}
 			});
 
@@ -384,16 +384,18 @@ gulp.task('web-script', function(){
 			let src = scripts[dst];
 			let out =  BUILD_PATH + path.resolve(dst + '/../');
 			gutil.log('编译' + dst + '.js ...');
-			gulp.src(src)
+			gulp.src(src).on('error', reject).on('end', resolve)
 				.pipe(tap(function (file) {
 					let b = browserify(file.path);
 					file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
-				})).on('error', reject).on('end', resolve)
+				}))
 				.pipe(gulp.dest(out));
 		}));
 	}
 
-	return Promise.all(tasks);
+	return Promise.all(tasks).then( function(){
+		gutil.log('web-script 完成');
+	});
 
 });
 
@@ -420,7 +422,9 @@ gulp.task('web-json', function(){
 		}));
 	}
 
-	return  Promise.all(tasks);
+	return  Promise.all(tasks).then( function(){
+		gutil.log('web-json 完成');
+	});
 
 });
 
@@ -438,21 +442,23 @@ gulp.task('web-style', function(){
 	});
 	
 	let tasks = [];
-
 	for( let dst in scripts) {
 		tasks.push(new Promise( function( resolve, reject) {
 			let src = scripts[dst];
 			let out =  BUILD_PATH + path.resolve(dst + '/../');
 			gutil.log('编译' + dst + '.less ...');
-			pipe = gulp.src(src)
+			pipe = gulp.src(src).on('error', reject).on('end', resolve)
 				.pipe(less({
 					paths:[__WEB_ROOT__]
-				})).on('error', reject).on('end', resolve)
+				}))
 				.pipe(gulp.dest(out));
 		}));
 	}
 
-	return Promise.all(tasks);
+	return  Promise.all(tasks).then( function(){
+		gutil.log('web-style 完成');
+	});
+
 });
 
 // Page Merge
@@ -473,19 +479,19 @@ gulp.task('web-page', function(){
 			let src = scripts[dst];
 			let out =  BUILD_PATH + path.resolve(dst + '/../');
 			gutil.log('合并' + dst + '.page ...');
-			pipe = gulp.src(src)
-				.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
+			pipe = gulp.src(src).on('error', reject).on('end', resolve)
+				.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__))
 				.pipe(include())
-				.pipe(include_import()).on('error', reject).on('end', resolve);
+				.pipe(include_import());
 
 			for( let i=0; i<binds.length; i++ ) {
 				// {{__STOR__::/deepblue/assets}}
 				let bind = binds[i];
 				let reg = new RegExp("\{\{__STOR__\:\:"+bind['remote']+"\}\}", "g");
 				if ( WEB_CONF['debug'] === true ) { 
-					pipe.pipe(replace(reg, bind['origin'])).on('error', reject);
+					pipe.pipe(replace(reg, bind['origin']));
 				} else {
-					pipe.pipe(replace(reg, bind['url'])).on('error', reject);
+					pipe.pipe(replace(reg, bind['url']));
 				}
 			}
 
@@ -493,7 +499,10 @@ gulp.task('web-page', function(){
 		}));
 	}
 
-	return Promise.all(tasks);
+	return  Promise.all(tasks).then( function(){
+		gutil.log('web-page 完成');
+	});
+	
 });
 
 
@@ -501,34 +510,60 @@ gulp.task('web-page', function(){
 gulp.task('web-zip', ['web-sync-page'], function(){
 	
 	let webpath =  BUILD_PATH + path.resolve('/web');
-	return gulp.src( webpath + '/**/**/**/*')
-			.pipe(zip('web.zip'))
-			.pipe(gulp.dest(BUILD_PATH));
+
+	let task = new Promise( function( resolve, reject ) {
+			setTimeout(function(){
+				gulp.src( webpath + '/**/**/**/*').on('error', reject).on('end', resolve)
+					.pipe(zip('web.zip'))
+					.pipe(gulp.dest(BUILD_PATH));
+			}, 800);
+		});
+
+
+	return task.then(function(){
+		gutil.log('web-zip 完成');
+	});
 });
 
 
 // Page Upload & Compile
 gulp.task('web-compile', ['web-zip'], function() {
-	return  uploadFile( BUILD_PATH + '/web.zip', { data:{
-			type:"zip"
-		}})
-		.then(function(resp){
-			gutil.log( '编译成功' );
-		})
-		.catch(function(error){
-			let message =  error['message'] ||  '未知错误';
-			let trace = error['trace'] || [];
-			let extra = error['extra'] || [];
-			let file = extra['file'] || '未知文件';
-			let line = extra['line'] || '未知行号';
 
-			gutil.log( '编译失败:', message, file, line );
-			for( let idx in trace ) {
-				let t = trace[idx];
-				gutil.log( "\t" , t['class'],  t['function'], t['file'] , t['line']  ) ;
-			}
+	let task = new Promise( function( resolve, reject ) {
 
-		})
+		setTimeout(function(){
+			uploadFile( BUILD_PATH + '/web.zip', { data:{
+					type:"zip"
+				}})
+				.then(function(resp){
+					gutil.log( '编译成功' );
+					resolve(resp);
+				})
+				.catch(function(error){
+					let message =  error['message'] ||  '未知错误';
+					let trace = error['trace'] || [];
+					let extra = error['extra'] || [];
+					let file = extra['file'] || '未知文件';
+					let line = extra['line'] || '未知行号';
+
+					gutil.log( '编译失败:', message, file, line );
+					gutil.log(error);
+
+					for( let idx in trace ) {
+						let t = trace[idx];
+						gutil.log( "\t" , t['class'],  t['function'], t['file'] , t['line']  ) ;
+					}
+					reject(error);
+
+				})
+		}, 10);
+	});
+
+	return task.then(function(){
+		gutil.log('web-compile 完成');
+	}).catch( function(){
+		gutil.log('web-compile 错误');
+	});
 });
 
 
@@ -544,19 +579,20 @@ gulp.task('web-sync-static', function() {
 	let tasks = [];
 	binds.forEach(function( bind ) {
 		tasks.push(new Promise( function( resolve, reject) {
-			gulp.src('')
+			gulp.src('').on('error', reject).on('end', resolve)
 				.pipe(sync( __dirname + bind.local, bind.remote, {
 					stor:stor,
 					printSummary:true,
 					nodelete:false		
 				}))
-				.on('error', reject)
-				.on('end', resolve);
+				
 
 		}));
 	});
 
-	return Promise.all(tasks);
+	return  Promise.all(tasks).then( function(){
+		gutil.log('web-sync-static 完成');
+	});
 	
 });
 
@@ -569,12 +605,27 @@ gulp.task('web-sync-page', ['web-script', 'web-page', 'web-json', 'web-style'], 
 	let pages = _stor_pages();
 	let fullsrc = BUILD_PATH + '/web';
 
+
 	return gulp.src('')
 			.pipe(sync( fullsrc, pages.remote, {
 				stor:stor,
 				printSummary:true,
 				nodelete:false		
-			}));
+			}))
+
+
+	let task = new Promise( function( resolve, reject ) {
+		 gulp.src('').on('error', reject).on('end', resolve)
+			.pipe(sync( fullsrc, pages.remote, {
+				stor:stor,
+				printSummary:true,
+				nodelete:false		
+			}))
+	});
+
+	return task.then(function(){
+		gutil.log('web-sync-page 完成');
+	});
 });
 
 
@@ -583,12 +634,18 @@ gulp.task('web-sync-page-only', function(){
 	let pages = _stor_pages();
 	let fullsrc = BUILD_PATH + '/web';
 
-	return gulp.src('')
-			.pipe(sync( fullsrc, pages.remote, {
-				stor:stor,
-				printSummary:true,
-				nodelete:false		
-			}));
+	let task = new Promise( function( resolve, reject ) {
+		gulp.src('').on('error', reject).on('end', resolve)
+				.pipe(sync( fullsrc, pages.remote, {
+					stor:stor,
+					printSummary:true,
+					nodelete:false		
+				}));
+	});
+
+	return task.then(function(){
+		gutil.log('web-sync-page-only 完成');
+	});
 });
 
 

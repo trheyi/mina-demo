@@ -4,6 +4,7 @@ let path = require('path');
 let crc = require('crc');
 let request = require('request');
 let gutil = require('gulp-util');
+let ts = 0;
 
 class Base {
 	constructor( options )  {
@@ -202,7 +203,11 @@ class Base {
 				if ( !existsCache ) {
 					fs.mkdirsSync( cacheSrc );
 				}
-				that.eachUpdate( leafSrc,  leafDst, callback );
+
+				setTimeout(function(){
+					that.eachUpdate( leafSrc,  leafDst, callback );
+				},ts);
+
 			}
 		});
 	};
@@ -254,7 +259,11 @@ class Base {
 						});
 
 				} else if ( statCache.isDirectory() ) {
-					that.eachRemove(  leafSrc, leafDst, callback );
+					
+
+					setTimeout(function(){
+						that.eachRemove(  leafSrc, leafDst, callback );
+					},ts);
 				}
 			}
 		});

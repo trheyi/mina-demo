@@ -14,7 +14,8 @@ var dirSync = function(src, dst, options) {
 	options['nodelete'] = options['nodelete'] || false;
 	var stor = options.stor || {};
 	var func = function(callback) {
-
+		let that =this;
+		
 		if ( !src || !dst ) {
 			this.emit('error', new gutil.PluginError(PLUGIN_NAME, '参数错误'));
 			callback();
@@ -29,24 +30,22 @@ var dirSync = function(src, dst, options) {
 			error:0
 		}
 
-		if ( !options.nodelete ) {  // 删除数据
-			stor.eachRemove( src, dst, function( src, dst, op, error=null ){
-				resp[op]++;
-				var printSummaryType = typeof options.printSummary;
-				if ( printSummaryType === 'boolean' && options.printSummary === true && op != 'notchange' ) {
+		stor.eachRemove( src, dst, function( src, dst, op, error=null ){
+			resp[op]++;
+			var printSummaryType = typeof options.printSummary;
+			if ( printSummaryType === 'boolean' && options.printSummary === true && op != 'notchange' ) {
 
-					gutil.log( '同步:' + dst  + ',  操作:' + op );
+				gutil.log( '同步:' + dst  + ',  操作:' + op );
 
-				} else if ( printSummaryType === 'function' ) {
-					options.printSummary( src, dst, op, error, resp );
+			} else if ( printSummaryType === 'function' ) {
+				options.printSummary( src, dst, op, error, resp );
 
-				}
+			}
 
-				if  (error !== null ) {
-					gutil.log( error );
-				}
-			});
-		}
+			if  (error !== null ) {
+				gutil.log( error );
+			}
+		});
 
 		stor.eachUpdate( src, dst, function( src, dst, op, error=null ){ // 更新
 			resp[op]++;
@@ -65,8 +64,10 @@ var dirSync = function(src, dst, options) {
 		});
 
 
-		this.resume();
+		that.resume();
 		callback();
+		// callback();
+
 	};
 
 	return through.obj(
