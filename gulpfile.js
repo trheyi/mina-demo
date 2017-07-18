@@ -140,7 +140,7 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 			callback: function (err, data, res) {
 
 				res = res || {};
-				
+
 				if ( WEB_CONF['debug'] === true ) {
 					gutil.log( '========== DEBUG HTTP RESPONSE CODE: ' , res.statusCode ,  "==============");
 					gutil.log( '========== DEBUG HTTP RESPONSE BODY:  ==================\n' , data.toString(), "\n===================================================================");
@@ -475,8 +475,8 @@ gulp.task('web-page', function(){
 			gutil.log('合并' + dst + '.page ...');
 			pipe = gulp.src(src)
 				.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
-				.pipe(include()).on('error', reject)
-				.pipe(include_import()).on('error', reject);
+				.pipe(include())
+				.pipe(include_import()).on('error', reject).on('end', resolve);
 
 			for( let i=0; i<binds.length; i++ ) {
 				// {{__STOR__::/deepblue/assets}}
@@ -489,7 +489,7 @@ gulp.task('web-page', function(){
 				}
 			}
 
-			pipe.pipe(gulp.dest(out)).on('end', resolve);
+			pipe.pipe(gulp.dest(out))
 		}));
 	}
 
