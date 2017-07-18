@@ -388,8 +388,8 @@ gulp.task('web-script', function(){
 				.pipe(tap(function (file) {
 					let b = browserify(file.path);
 					file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
-				})).on('error', reject)
-				.pipe(gulp.dest(out)).on('end', resolve);
+				}))
+				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
 
@@ -416,7 +416,7 @@ gulp.task('web-json', function(){
 			let out =  BUILD_PATH + path.resolve(dst + '/../');
 			gutil.log('复制' + dst + '.json ...');
 			pipe = gulp.src(src)
-				.pipe(gulp.dest(out)).on('end', resolve);
+				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
 
@@ -447,8 +447,8 @@ gulp.task('web-style', function(){
 			pipe = gulp.src(src)
 				.pipe(less({
 					paths:[__WEB_ROOT__]
-				})).on('error', reject)
-				.pipe(gulp.dest(out)).on('end', resolve);
+				}))
+				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
 
