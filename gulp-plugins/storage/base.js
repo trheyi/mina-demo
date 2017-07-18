@@ -48,6 +48,8 @@ class Base {
 			
 			request.post( opt, function callback( err, httpResponse, body ) {
 
+				httpResponse = httpResponse || {};
+
 				if ( that.options['debug'] === true ) {
 					gutil.log( '========== DEBUG HTTP RESPONSE CODE: ' , httpResponse.statusCode ,  "==============");
 					gutil.log( '========== DEBUG HTTP RESPONSE BODY:  ==================\n' , body, "\n===================================================================");

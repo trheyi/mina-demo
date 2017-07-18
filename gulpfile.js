@@ -139,6 +139,8 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 			},
 			callback: function (err, data, res) {
 
+				res = res || {};
+				
 				if ( WEB_CONF['debug'] === true ) {
 					gutil.log( '========== DEBUG HTTP RESPONSE CODE: ' , res.statusCode ,  "==============");
 					gutil.log( '========== DEBUG HTTP RESPONSE BODY:  ==================\n' , data.toString(), "\n===================================================================");
@@ -529,24 +531,36 @@ gulp.task('web-compile', ['web-zip'], function() {
 		})
 });
 
+
+
+
 // Sync static file to CDN
 gulp.task('web-sync-static', function() {
 
 	let binds = _stor_binds();
 	let stor = _stor();
 	let pip = null;
+
+	let tasks = [];
 	binds.forEach(function( bind ) {
-		pip = gulp.src('')
-			.pipe(sync( __dirname + bind.local, bind.remote, {
-				stor:stor,
-				printSummary:true,
-				nodelete:false		
-			}));
+		tasks.push(new Promise( function( resolve, reject) {
+			gulp.src('')
+				.pipe(sync( __dirname + bind.local, bind.remote, {
+					stor:stor,
+					printSummary:true,
+					nodelete:false		
+				}))
+				.on('error', reject)
+				.on('end', resolve);
+
+		}));
 	});
 
-	return pip;
+	return Promise.all(tasks);
 	
 });
+
+
 
 
 // 同步 JS 文件 和 CSS 文件到存储器
