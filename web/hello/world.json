@@ -1,0 +1,43 @@
+{
+	"cname":"默认正文页",
+	"data": {
+		"category":{
+			"api":"/mina/pages/category/search",
+			"query":{
+				"select":"category_id,name",
+				"children":false,
+				"param":"isnav=true",
+				"status":"on"
+			}
+		},
+		"article":{
+			"api":"/mina/pages/article/get",
+			"query":{
+				"articleId":"{{__var.id}}"
+			}
+		},
+		"hots":{
+			"api":"/mina/pages/article/search",
+			"query":{
+				"select":"article_id,title,publish_time",
+				"category":"新闻公告",
+				"perpage":6,
+				"order":"publish_time desc"
+			}
+		},
+		"navcates":"{{category.data}}",
+		"crumb":"{{article.category.0}}",
+		"page":{
+			"title":"{{article.title}}"
+		}
+	},
+	"entries":[
+		{"method":"GET", "router":"/article/{id:\\d+}", "ttl":0}
+	],
+
+	"align": {
+		"mobile":"/article/mobile/detail",
+		"wechat":"/article/mobile/detail",
+		"wxapp": "/article/detail"
+	}
+}

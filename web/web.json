@@ -1,0 +1,36 @@
+{
+	"cname":"MINA Pages 默认主题",
+	"pages":[
+		"/hello/world"
+	],
+	"common":[
+		"/common"
+	],
+	"storage": {
+		"engine":"minapages",
+		"options":{
+			"debug":true,
+			"server":"https://xxx.com",
+			"url":"/static-file/deepblue",
+			"origin":"/static-file/deepblue",
+			"prefix":"/deepblue",
+			"appid": "xxx.sl2",
+			"secret":"xxxjdjs"
+		},
+		"pages":{
+			"remote": "/deepblue/pages",
+			"url": "/static-file/deepblue/pages",
+			"origin": "/static-file/deepblue/pages"
+		},
+		"binds": [
+			{
+				"local": "/web/assets",
+				"remote": "/deepblue/assets",
+				"url": "/static-file/deepblue/assets",
+				"origin": "/static-file/deepblue/assets"
+			}
+		]
+	},
+
+	"debug":true
+}

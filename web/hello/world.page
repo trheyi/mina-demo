@@ -1,0 +1,101 @@
+<include src="__WEB_ROOT__/common/header.page"  />
+<div class="container">
+	<div class="header-top row" id="top">
+		<div class="col-lg-4" id="today" >
+			欢迎您的光临，今天是 <span></span>
+		</div>
+		<div class="col-lg-5">
+			<!-- <img src="{{__STOR__::/deepblue/assets}}/images/p1_12.png">
+			<span id="webNotice">网站公告：</span>
+			<p class="WebNotice">
+				<a href="#">中国疼痛诊疗网正式开通...</a>
+				<span>2017-5-9</span>
+			</p> -->
+		</div>
+		<div class="col-lg-3 text-right">
+			<img src="{{__STOR__::/deepblue/assets}}/images/p1_13.png">
+			<a href=""> 联系我们 010-83198161 </a>
+		</div>
+	</div>
+</div>
+<!-- 头部的大图 -->
+<div class="header-img">
+	<img src="{{__STOR__::/deepblue/assets}}/images/p1_01.png">
+</div>
+<!-- 头部的导航栏 -->
+<div class="header-nav row">
+	<div>
+		<ul class="nav-list">
+			<li >
+				<a href="/">首页</a>
+			</li>
+			<li mp:for="{{navcates}}" >
+				<a href="/list/{{item.category_id}}">{{item.name}} </a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="seconds-nav row">
+	<div>
+		<ul class="seconds-nav-list">
+			<li>
+				<a href="/">首页</a>
+			</li>
+			<li> &gt;</li>
+			<li>
+				<a href="/list/{{crumb.category_id}}">{{crumb.name}}</a>
+			</li>
+			<li> &gt;</li>
+			<li> 正文</li>
+		</ul>
+	</div>
+</div>
+
+
+<div class="container main" id="main-width">
+	<div class="row show-list"> <!-- 主体左侧 -->
+		<div class="col-lg-8 main-left page">
+			<div class="title">
+				<h1>{{article.title}}</h1>
+				<span>来源: {{article.origin}} </span>
+				<span class="tag" mp:for="{{article.tag}}">
+					{{item.name}}
+				</span>
+
+				<span class="time">{{article.publish_time}} </span>
+			</div>
+			
+			<div class="content">
+				{{article.content}}
+			</div>
+
+		</div>
+	
+		<div class="col-lg-4 main-right">
+			<div class="sidebar-block">
+				<h4>推荐热闻</h4>
+				<ul>
+					<li mp:for="{{hots.data}}">
+						<a href="/article/{{item.article_id}}">{{item.title}}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<script type="text/javascript" src="{{__STOR__::/deepblue/assets}}/js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="{{__STOR__::/deepblue/assets}}/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="{{__STOR__::/deepblue/assets}}/js/home-js.js"></script>
+<script type="text/javascript" src="{{__STOR__::/deepblue/assets}}/js/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+	console.log( $('.selector').val() );
+</script>
+
+</body>
+</html>
