@@ -219,7 +219,7 @@ function _stor_pages() {
 // 将一个 ES6 JS 翻译成  ES5 JS 
 function compileScript( src ) {
 
-	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
+	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -244,7 +244,7 @@ function compileScript( src ) {
 // 复制页面配置
 function copyJSON( src ) {
 
-	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
+	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -264,7 +264,7 @@ function copyJSON( src ) {
 // 编译样式
 function compileStyle ( src ){
 
-	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
+	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -288,7 +288,7 @@ function compileStyle ( src ){
 // 合并页面
 function mergePage( src ){
 
-	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
+	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -326,7 +326,7 @@ function mergePage( src ){
 
 // 上传一个页面
 function compilePage( src ) {
-	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
+	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 	let page = scriptArr[0];
