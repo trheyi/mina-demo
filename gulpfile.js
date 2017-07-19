@@ -400,7 +400,7 @@ function web_json() {
 		tasks.push(new Promise( function( resolve, reject) {
 		
 			let src = path.resolve(scripts[dst]);
-			let out = path.join(BUILD_PATH, path.resolve(dst + '/../'));
+			let out = path.join(BUILD_PATH, dst + '/../');
 			gutil.log('复制' + dst + '.json ...');
 				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
 				gutil.log('\tdst=', dst); 
@@ -421,19 +421,24 @@ function web_json() {
 function web_style() {
 	let pipe = null;
 	let scripts = {
-		"/web/web.less": path.resolve(__dirname, './web') +  '/web.less'
+		"/web/web.less": path.join(path.resolve(__dirname, './web') ,  '/web.less')
 	};
 	
 	WEB_PAGES.map(function( name, idx ){
-		scripts['/web' + name ] =  path.resolve(__dirname, './web' ) + name + '.less';
+		scripts['/web' + name ] =  path.join(path.resolve(__dirname, './web' ) , name + '.less');
 	});
 	
 	let tasks = [];
 	for( let dst in scripts) {
 		tasks.push(new Promise( function( resolve, reject) {
-			let src = scripts[dst];
-			let out =  BUILD_PATH + path.resolve(dst + '/../');
+			let src = path.resolve(scripts[dst]);
+			let out = path.join(BUILD_PATH, dst + '/../');
 			gutil.log('编译' + dst + '.less ...');
+				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
+				gutil.log('\tdst=', dst); 
+				gutil.log('\tsrc=', dst); 
+				gutil.log('\tout=',  out );
+
 			pipe = gulp.src(src).on('error', reject)
 				.pipe(less({
 					paths:[__WEB_ROOT__]
@@ -452,7 +457,7 @@ function web_page(){
 	let binds = _stor_binds();
 	
 	WEB_PAGES.map(function( name, idx ){
-		scripts['/web' + name ] =  path.resolve(__dirname, './web' ) + name + '.page';
+		scripts['/web' + name ] =   path.join(path.resolve(__dirname, './web' ) , name + '.page');
 	});
 
 
@@ -460,9 +465,14 @@ function web_page(){
 	for( let dst in scripts) {
 
 		tasks.push(new Promise( function( resolve, reject) {
-			let src = scripts[dst];
-			let out =  BUILD_PATH + path.resolve(dst + '/../');
+			let src = path.resolve(scripts[dst]);
+			let out = path.join(BUILD_PATH, dst + '/../');
 			gutil.log('合并' + dst + '.page ...');
+				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
+				gutil.log('\tdst=', dst); 
+				gutil.log('\tsrc=', dst); 
+				gutil.log('\tout=',  out );
+
 			pipe = gulp.src(src).on('error', reject)
 				.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
 				.pipe(include()).on('error', reject)
@@ -552,10 +562,11 @@ gulp.task('web-page', function(){
 // Page package
 gulp.task('web-zip', function( cb ){
 
-	let webpath =  BUILD_PATH + path.resolve('/web');
+	// let webpath =  BUILD_PATH + path.resolve('/web');
+	let webpath =  path.join(BUILD_PATH , '/web');
 	return new Promise( function( resolve, reject ) {
 		Promise.all([web_json(), web_script(),web_page(), web_style()]).then(function(){
-			gulp.src( webpath + '/**/**/**/*').on('error', reject)
+			gulp.src( path.join(webpath , '/**/**/**/*')).on('error', reject)
 				.pipe(zip('web.zip')).on('error', reject)
 				.pipe(gulp.dest(BUILD_PATH)).on('error', reject).on('end', resolve);
 			gutil.log('web-zip 完成');
