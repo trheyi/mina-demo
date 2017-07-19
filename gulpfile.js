@@ -297,6 +297,7 @@ function mergePage( src ){
 	return new Promise( function( resolve, reject) {
 		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('合并' + dst + '.page ...');
+			gutil.log('\tscript=', script);
 			gutil.log('\tsrc=', src);
 			gutil.log('\tdst=', dst );
 			gutil.log('\tout=', out );
