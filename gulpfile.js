@@ -219,7 +219,7 @@ function _stor_pages() {
 // 将一个 ES6 JS 翻译成  ES5 JS 
 function compileScript( src ) {
 
-	let script = src.replace(__WEB_ROOT__, '');
+	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -244,7 +244,7 @@ function compileScript( src ) {
 // 复制页面配置
 function copyJSON( src ) {
 
-	let script = src.replace(__WEB_ROOT__, '');
+	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -264,7 +264,7 @@ function copyJSON( src ) {
 // 编译样式
 function compileStyle ( src ){
 
-	let script = src.replace(__WEB_ROOT__, '');
+	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -273,6 +273,7 @@ function compileStyle ( src ){
 	return new Promise( function( resolve, reject) {
 		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('编译' + dst + '.less ...');
+			gutil.log('\tsrc=', src);
 			gutil.log('\tdst=', dst );
 			gutil.log('\tout=', out );
 
@@ -287,7 +288,7 @@ function compileStyle ( src ){
 // 合并页面
 function mergePage( src ){
 
-	let script = src.replace(__WEB_ROOT__, '');
+	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
@@ -296,6 +297,7 @@ function mergePage( src ){
 	return new Promise( function( resolve, reject) {
 		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('合并' + dst + '.page ...');
+			gutil.log('\tsrc=', src);
 			gutil.log('\tdst=', dst );
 			gutil.log('\tout=', out );
 			
@@ -323,11 +325,11 @@ function mergePage( src ){
 
 // 上传一个页面
 function compilePage( src ) {
-	let script = src.replace(__WEB_ROOT__, '');
+	let script = src.replace(__WEB_ROOT__, '').replace('\\', '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 	let page = scriptArr[0];
-	let webpath =  BUILD_PATH + path.resolve('/web');
+	let webpath =  path.join(BUILD_PATH, '/web');
 	let dirs = page.split('/');
 		dirs[1] = '+('+dirs[1]+')'
 
@@ -336,6 +338,10 @@ function compilePage( src ) {
 		let zipfile = 'web' + page.replace(/\//g,'_') + '.zip';
 		let pageroot = path.join(BUILD_PATH , '/web' , dirs.join('/') +  '.*');
 		gutil.log('compilePage');
+		gutil.log('\tsrc=', src);
+		gutil.log('\tpage=', page);
+		gutil.log('\tdirs=', dirs);
+		gutil.log('\tdst=', dst);
 		gutil.log('\tzipfile=', zipfile);
 		gutil.log('\tpageroot=', pageroot);
 
