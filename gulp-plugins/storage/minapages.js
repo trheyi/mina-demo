@@ -23,7 +23,7 @@ class Minapages extends Base {
 					filename:path.basename(src),
 				}
 			},
-			name: dst,
+			name: dst.replace(/\\/g, '/'),
 			op:'upload',
 			appid: this.options['appid'],
 			secret: this.options['secret']
@@ -40,7 +40,7 @@ class Minapages extends Base {
 
 	remoteDelete( dst ) {
 		let postData = {
-			name: dst,
+			name: dst.replace(/\\/g, '/'),
 			op:'delete',
 			appid: this.options['appid'],
 			secret: this.options['secret']
@@ -53,9 +53,6 @@ class Minapages extends Base {
 			
 		return this.post(  this.api, {data:postData, headers:headers});
 	}
-
 }
-
-
 
 module.exports = Minapages
