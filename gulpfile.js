@@ -365,7 +365,7 @@ function web_script() {
 	for( let dst in scripts) {
 		tasks.push(new Promise( function( resolve, reject) {
 			let src = path.resolve(scripts[dst]);
-			let out = path.join(BUILD_PATH, path.resolve(dst + '/../'));
+			let out = path.join(BUILD_PATH, dst + '/../');
 
 			gutil.log('编译' + dst + '.js ...');
 				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
