@@ -303,7 +303,7 @@ function mergePage( src ){
 			gutil.log('\tout=', out );
 			
 		pipe = gulp.src(src)
-			.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
+			.pipe(replace(/__WEB_ROOT__/g, ':' + __WEB_ROOT__)).on('error', reject)
 			.pipe(include()).on('error', reject)
 			.pipe(include_import()).on('error', reject);
 
@@ -500,7 +500,7 @@ function web_page(){
 				gutil.log('\tout=',  out );
 
 			pipe = gulp.src(src).on('error', reject)
-				.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
+				.pipe(replace(/__WEB_ROOT__/g, ':' + __WEB_ROOT__)).on('error', reject)
 				.pipe(include()).on('error', reject)
 				.pipe(include_import()).on('error', reject);
 
@@ -577,9 +577,9 @@ gulp.task('web-style', function(){
 gulp.task('web-page', function(){
 
 	return web_page().then( function(){
-		gutil.log('web-style 完成');
+		gutil.log('web-page 完成');
 	}).catch(function(){
-		gutil.log('web-style 错误');
+		gutil.log('web-page 错误');
 	});
 	
 });

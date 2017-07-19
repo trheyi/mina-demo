@@ -14,9 +14,6 @@ var GulpHtmlTagIncludePlugin = (function () {
         this.directiveRegexp = RegExp('<' + this.options.tagName + '\\s+([\\s\\S]*?)\/>' , 'gi');
 	}
 	GulpHtmlTagIncludePlugin.prototype.getFileContent = function (file) {  
-
-		console.log(path.resolve(file));
-
 		if (!fs.existsSync(file))
 			throw new PluginError(GulpHtmlTagIncludePlugin.PLUGIN_NAME, 'File not found: ' + file);
 		return fs.readFileSync(file, { encoding: 'utf8' });
@@ -44,7 +41,11 @@ var GulpHtmlTagIncludePlugin = (function () {
 		}
 
         var file = attributes.src;
-        if ( attributes.src[0] != '/' ) {
+        if ( attributes.src[0] ==  ':' ){
+        	// console.log(attributes.src);
+        	file = path.normalize(attributes.src.replace(':', ''));
+
+        } else if ( attributes.src[0] != '/' ) {
 		  file = path.normalize(path.dirname(parentFile) + path.sep + attributes.src);
         }
 
