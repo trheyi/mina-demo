@@ -654,7 +654,7 @@ gulp.task('web-sync-static', function() {
 	binds.forEach(function( bind ) {
 		tasks.push(new Promise( function( resolve, reject) {
 			gulp.src('').on('error', reject)
-				.pipe(sync( __dirname + bind.local, bind.remote, {
+				.pipe(sync( path.join(__dirname, bind.local), bind.remote, {
 					stor:stor,
 					printSummary:true,
 					nodelete:false		
@@ -669,13 +669,11 @@ gulp.task('web-sync-static', function() {
 });
 
 
-
-
 // 同步 JS 文件 和 CSS 文件到存储器
 gulp.task('web-sync-page', ['web-zip'], function(){
 	let stor = _stor({ignore:[/^\./,/\.page$/,/\.json$/]});
 	let pages = _stor_pages();
-	let fullsrc = BUILD_PATH + '/web';
+	let fullsrc = path.join(BUILD_PATH , '/web');
 
 	let task = new Promise( function( resolve, reject ) {
 		gulp.src('').on('error', reject)
@@ -695,7 +693,7 @@ gulp.task('web-sync-page', ['web-zip'], function(){
 gulp.task('web-sync-page-only', function(){
 	let stor = _stor({ignore:[/^\./,/\.page$/,/\.json$/]});
 	let pages = _stor_pages();
-	let fullsrc = BUILD_PATH + '/web';
+	let fullsrc =  path.join(BUILD_PATH + '/web');
 
 	let task = new Promise( function( resolve, reject ) {
 		gulp.src('').on('error', reject)
@@ -717,7 +715,7 @@ gulp.task('web-sync-page-only', function(){
 gulp.task('web-watch', function() {
 
 	// 防止多次触发更新事件 { awaitWriteFinish: true }
-	return gulp.watch(__WEB_ROOT__ + '/**/**/**/**/**', { awaitWriteFinish: true }, function ( event ) {
+	return gulp.watch(path.join(__WEB_ROOT__ , '/**/**/**/**/**'), { awaitWriteFinish: true }, function ( event ) {
 		
 		// console.log(' change:',vinyl.event , vinyl.relative,  vinyl.path );
 		// console.log('File ' + event.path + ' was ' + event.type + ', running tasks...', event );
