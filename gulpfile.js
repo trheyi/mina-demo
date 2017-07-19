@@ -14,20 +14,22 @@ let less = require('gulp-less');
 let upload = require('gulp-upload');
 let zip = require('gulp-zip');
 
-let include = require('./gulp-plugins/include');
-let include_import = require('./gulp-plugins/import');
-let sync = require("./gulp-plugins/sync");
+
+let include = require(path.resolve('./gulp-plugins/include'));
+let include_import = require(path.resolve('./gulp-plugins/import'));
+let sync = require(path.resolve("./gulp-plugins/sync"));
 
 // 系统信息
 let __WEB_ROOT__ = path.resolve(__dirname, './web');
 
-let CONF = require('./config.js');
+
+let CONF = require(path.resolve('./config.js'));
 let WEB_CONF = JSON.parse(fs.readFileSync( path.resolve(__dirname, './web/web.json') ));
 let WEB_PAGES = WEB_CONF['pages'] || [];
 let WEB_COMMONS = WEB_CONF['common'] || [];
-	WEB_COMMONS.push('/web.js' );
-	WEB_COMMONS.push('/web.json' );
-	WEB_COMMONS.push('/web.less' );
+	WEB_COMMONS.push('/web.js') ;
+	WEB_COMMONS.push('/web.json') ;
+	WEB_COMMONS.push('/web.less') ;
 	
 let WEB_STORAGE = WEB_CONF['storage'] || [];
 
@@ -37,7 +39,6 @@ let WEB_STORAGE = WEB_CONF['storage'] || [];
 let TMP_PATH = path.resolve(__dirname + '/.tmp');
 let CACHE_PATH = path.resolve(__dirname + '/.cache');
 let BUILD_PATH = CONF.mina['target'] || TMP_PATH;
-
 
 
 /**
@@ -222,7 +223,7 @@ function compileScript( src ) {
 	if ( scriptArr[1] != 'js') return;
 
 	return new Promise( function( resolve, reject) {
-		let out =  BUILD_PATH + path.resolve(dst + '/../');
+		let out = path.resolve(BUILD_PATH, dst + '/../');
 		gutil.log('编译' + dst + '.js ...');
 		gulp.src(src)
 			.pipe(tap(function (file) {
@@ -352,20 +353,26 @@ function compilePage( src ) {
 function web_script() {
 
 	let scripts = {
-		"/web/web.js": path.resolve(__dirname, './web') +  '/web.js'
+		"/web/web.js": path.join(path.resolve(__dirname, './web') ,  '/web.js')
 	};
 	
 	WEB_PAGES.map(function( name, idx ){
-		scripts['/web' + name ] =  path.resolve(__dirname, './web' ) + name + '.js';
+		scripts['/web' + name ] =  path.join(path.resolve(__dirname, './web' ) , name + '.js');
 	});
 
 	let tasks = [];
 
 	for( let dst in scripts) {
 		tasks.push(new Promise( function( resolve, reject) {
-			let src = scripts[dst];
-			let out =  BUILD_PATH + path.resolve(dst + '/../');
+			let src = path.resolve(scripts[dst]);
+			let out = path.join(BUILD_PATH, path.resolve(dst + '/../'));
+
 			gutil.log('编译' + dst + '.js ...');
+				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
+				gutil.log('\tdst=', dst); 
+				gutil.log('\tsrc=', dst); 
+				gutil.log('\tout=',  out );
+
 			gulp.src(src).on('error', reject)
 				.pipe(tap(function (file) {
 					let b = browserify(file.path);
@@ -381,19 +388,25 @@ function web_script() {
 // Copy JSON DATA 
 function web_json() {
 	let scripts = {
-		"/web/web.json": path.resolve(__dirname, './web') +  '/web.json'
+		"/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/web.json')
 	};
 	
 	WEB_PAGES.map(function( name, idx ){
-		scripts['/web' + name ] =  path.resolve(__dirname, './web' ) + name + '.json';
+		scripts['/web' + name ] = path.join(path.resolve(__dirname, './web' ) , name + '.json');
 	});
 
 	let tasks = [];
 	for( let dst in scripts) {
 		tasks.push(new Promise( function( resolve, reject) {
-			let src = scripts[dst];
-			let out =  BUILD_PATH + path.resolve(dst + '/../');
+		
+			let src = path.resolve(scripts[dst]);
+			let out = path.join(BUILD_PATH, path.resolve(dst + '/../'));
 			gutil.log('复制' + dst + '.json ...');
+				gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
+				gutil.log('\tdst=', dst); 
+				gutil.log('\tsrc=', dst); 
+				gutil.log('\tout=',  out );
+
 			pipe = gulp.src(src).on('error', reject)
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
