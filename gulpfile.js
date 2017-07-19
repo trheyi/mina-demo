@@ -53,7 +53,8 @@ function isObject(item) {
 
 function isPage( file ) {
 	for( let idx in WEB_PAGES ) {
-		let fullpath = __WEB_ROOT__ + WEB_PAGES[idx].toString();
+		let fullpath = path.join(__WEB_ROOT__ , WEB_PAGES[idx].toString());
+		gutil.log('isPage: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 }
@@ -61,14 +62,16 @@ function isPage( file ) {
 function isAsset( file ) {
 	let binds = _stor_binds();
 	for ( let idx in binds ) {
-		let fullpath = __dirname + binds[idx]['local'].toString();
+		let fullpath = path.join(__dirname , binds[idx]['local'].toString());
+		gutil.log('isAsset: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 }
 
 function isCommon( file ) {
 	for( let idx in WEB_COMMONS ) {
-		let fullpath = __WEB_ROOT__ + WEB_COMMONS[idx].toString();
+		let fullpath = path.join(__WEB_ROOT__ , WEB_COMMONS[idx].toString());
+		gutil.log('isCommon: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 
@@ -198,7 +201,7 @@ function _stor( options = {} ) {
 	let engine = WEB_STORAGE['engine'] || 'local';
 	let opts = {};
 	objectMerge(opts,  WEB_STORAGE['options'], options);
-	let Storage = require('./gulp-plugins/storage/' + engine );
+	let Storage = require(path.resolve('./gulp-plugins/storage/' + engine));
 	return new Storage( opts );
 }
 
@@ -223,8 +226,11 @@ function compileScript( src ) {
 	if ( scriptArr[1] != 'js') return;
 
 	return new Promise( function( resolve, reject) {
-		let out = path.resolve(BUILD_PATH, dst + '/../');
+		let out = path.join(BUILD_PATH, dst + '/../');
 		gutil.log('编译' + dst + '.js ...');
+			gutil.log('\tdst=', dst );
+			gutil.log('\tout=', out );
+
 		gulp.src(src)
 			.pipe(tap(function (file) {
 				let b = browserify(file.path);
@@ -245,8 +251,10 @@ function copyJSON( src ) {
 	if ( scriptArr[1] != 'json') return;
 
 	return new Promise( function( resolve, reject) {
-		let out =  BUILD_PATH + path.resolve(dst + '/../');
+		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('复制' + dst + '.json ...');
+			gutil.log('\tdst=', dst );
+			gutil.log('\tout=', out );
 		pipe = gulp.src(src)
 			.pipe(gulp.dest(out)).on('end', resolve);
 	});
@@ -263,8 +271,11 @@ function compileStyle ( src ){
 	if ( scriptArr[1] != 'less') return;
 
 	return new Promise( function( resolve, reject) {
-		let out =  BUILD_PATH + path.resolve(dst + '/../');
+		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('编译' + dst + '.less ...');
+			gutil.log('\tdst=', dst );
+			gutil.log('\tout=', out );
+
 		pipe = gulp.src(src)
 			.pipe(less({
 				paths:[__WEB_ROOT__]
@@ -283,8 +294,11 @@ function mergePage( src ){
 	if ( scriptArr[1] != 'page') return;
 
 	return new Promise( function( resolve, reject) {
-		let out =  BUILD_PATH + path.resolve(dst + '/../');
+		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('合并' + dst + '.page ...');
+			gutil.log('\tdst=', dst );
+			gutil.log('\tout=', out );
+			
 		pipe = gulp.src(src)
 			.pipe(replace(/__WEB_ROOT__/g, __WEB_ROOT__)).on('error', reject)
 			.pipe(include()).on('error', reject)
@@ -320,7 +334,12 @@ function compilePage( src ) {
 	return new Promise( function( resolve, reject) {
 
 		let zipfile = 'web' + page.replace(/\//g,'_') + '.zip';
-		let pageroot = BUILD_PATH + '/web' + dirs.join('/') +  '.*';
+		let pageroot = path.join(BUILD_PATH , '/web' , dirs.join('/') +  '.*');
+		gutil.log('compilePage');
+		gutil.log('\tzipfile=', zipfile);
+		gutil.log('\tpageroot=', pageroot);
+
+
 		// console.log(pageroot, dirs);
 		// var glob = require('glob');
 		// glob(pageroot, function(err, files) {
@@ -332,7 +351,7 @@ function compilePage( src ) {
 			.pipe(gulp.dest(BUILD_PATH))
 			.on('end', function(){
 				
-				uploadFile( BUILD_PATH + '/' + zipfile, { data:{
+				uploadFile( path.join(BUILD_PATH , '/' + zipfile), { data:{
 					type:"zip",
 					page:page
 				}})
