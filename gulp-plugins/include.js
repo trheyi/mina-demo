@@ -13,7 +13,10 @@ var GulpHtmlTagIncludePlugin = (function () {
         // this.directiveRegexp = RegExp('<' + this.options.tagName + '\\s+([\\s\\S]*?)\/>' + '[ ]*\/>' , 'gi');
         this.directiveRegexp = RegExp('<' + this.options.tagName + '\\s+([\\s\\S]*?)\/>' , 'gi');
 	}
-	GulpHtmlTagIncludePlugin.prototype.getFileContent = function (file) {      
+	GulpHtmlTagIncludePlugin.prototype.getFileContent = function (file) {  
+
+		console.log(path.resolve(file));
+
 		if (!fs.existsSync(file))
 			throw new PluginError(GulpHtmlTagIncludePlugin.PLUGIN_NAME, 'File not found: ' + file);
 		return fs.readFileSync(file, { encoding: 'utf8' });
