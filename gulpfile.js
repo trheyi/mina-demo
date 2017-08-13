@@ -54,7 +54,7 @@ function isObject(item) {
 function isPage( file ) {
 	for( let idx in WEB_PAGES ) {
 		let fullpath = path.join(__WEB_ROOT__ , WEB_PAGES[idx].toString());
-		gutil.log('isPage: fullpath=', fullpath );
+		// gutil.log('isPage: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 }
@@ -63,7 +63,7 @@ function isAsset( file ) {
 	let binds = _stor_binds();
 	for ( let idx in binds ) {
 		let fullpath = path.join(__dirname , binds[idx]['local'].toString());
-		gutil.log('isAsset: fullpath=', fullpath );
+		// gutil.log('isAsset: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 }
@@ -71,7 +71,7 @@ function isAsset( file ) {
 function isCommon( file ) {
 	for( let idx in WEB_COMMONS ) {
 		let fullpath = path.join(__WEB_ROOT__ , WEB_COMMONS[idx].toString());
-		gutil.log('isCommon: fullpath=', fullpath );
+		// gutil.log('isCommon: fullpath=', fullpath );
 		if (  inDir( file, fullpath ) ) return true;
 	}
 
@@ -136,7 +136,9 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 			data:{
 				appid: conf.appid,
 				secret: conf.secret,
-				project: conf.project
+				project: conf.project,
+				server: conf.server,
+				domain: conf.domain
 			},
 			callback: function (err, data, res) {
 
@@ -291,35 +293,49 @@ function mergePage( src ){
 	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 
 	if ( scriptArr[1] != 'page') return;
 
 	return new Promise( function( resolve, reject) {
 		let out =  path.join(BUILD_PATH , dst + '/../');
+		let binds = _stor_binds();
 		gutil.log('合并' + dst + '.page ...');
 			gutil.log('\tscript=', script);
 			gutil.log('\tsrc=', src);
 			gutil.log('\tdst=', dst );
 			gutil.log('\tout=', out );
 			
-		pipe = gulp.src(src)
+		gulp.src(src)
 			.pipe(replace(/__WEB_ROOT__/g, ':' + __WEB_ROOT__)).on('error', reject)
 			.pipe(include()).on('error', reject)
-			.pipe(include_import()).on('error', reject);
+			.pipe(include_import()).on('error', reject)
+			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
 
-		binds = _stor_binds();
-		for( let i=0; i<binds.length; i++ ) {
-			// {{__STOR__::/deepblue/assets}}
-			let bind = binds[i];
-			let reg = new RegExp("\{\{__STOR__\:\:"+bind['remote']+"\}\}", "g");
-			if ( WEB_CONF['debug'] === true ) { 
-				pipe.pipe(replace(reg, bind['origin'])).on('error', reject);
-			} else {
-				pipe.pipe(replace(reg, bind['url'])).on('error', reject);
-			}
-		}
+				let remote = p1.replace('__PROJECT_NAME', project );
+				let bind =  bindsMap[remote];
+				if ( typeof bind != 'object' ) {
+					return '';
+				}
 
-		pipe.pipe(gulp.dest(out)).on('end', resolve);
+				if ( WEB_CONF['debug'] === true ) { 
+					return bind['origin'];
+				} else {
+					return bind['url'];
+				}
+
+				return '';
+
+			})).on('error', reject)
+			.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 	});
 
 }
@@ -480,11 +496,19 @@ function web_style() {
 // Page Merge
 function web_page(){
 	let scripts = {};
-	let binds = _stor_binds();
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
 	
 	WEB_PAGES.map(function( name, idx ){
 		scripts['/web' + name ] =   path.join(path.resolve(__dirname, './web' ) , name + '.page');
 	});
+
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 
 
 	let tasks = [];
@@ -499,23 +523,28 @@ function web_page(){
 				gutil.log('\tsrc=', dst); 
 				gutil.log('\tout=',  out );
 
-			pipe = gulp.src(src).on('error', reject)
+			gulp.src(src).on('error', reject)
 				.pipe(replace(/__WEB_ROOT__/g, ':' + __WEB_ROOT__)).on('error', reject)
 				.pipe(include()).on('error', reject)
-				.pipe(include_import()).on('error', reject);
+				.pipe(include_import()).on('error', reject)
+				.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
 
-			for( let i=0; i<binds.length; i++ ) {
-				// {{__STOR__::/deepblue/assets}}
-				let bind = binds[i];
-				let reg = new RegExp("\{\{__STOR__\:\:"+bind['remote']+"\}\}", "g");
-				if ( WEB_CONF['debug'] === true ) { 
-					pipe.pipe(replace(reg, bind['origin'])).on('error', reject);
-				} else {
-					pipe.pipe(replace(reg, bind['url'])).on('error', reject);
-				}
-			}
+					let remote = p1.replace('__PROJECT_NAME', project );
+					let bind =  bindsMap[remote];
+					if ( typeof bind != 'object' ) {
+						return '';
+					}
 
-			pipe.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
+					if ( WEB_CONF['debug'] === true ) { 
+						return bind['origin'];
+					} else {
+						return bind['url'];
+					}
+
+					return '';
+
+				})).on('error', reject)
+				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
 
