@@ -4,8 +4,9 @@ config = {
 		target: false,
 		server:"https://xxx.com",
 		project:"deepblue",
-		appid:'xxxxdsss',
-		secret:'ssdfaf'
+		domain:"s1.xxx.com",
+		appid:'AK_eb56948a4afae4615692cede41b821xx',
+		secret:'SK_4dfc798c2038e7451297e861382336xx'
 	}
 };
 
