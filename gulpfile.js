@@ -225,6 +225,16 @@ function compileScript( src ) {
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
+
+
 	if ( scriptArr[1] != 'js') return;
 
 	return new Promise( function( resolve, reject) {
@@ -238,6 +248,26 @@ function compileScript( src ) {
 				let b = browserify(file.path);
 				file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
 			})).on('error', reject)
+
+
+			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+				
+				let remote = p1.replace('__PROJECT_NAME', project );
+				let bind =  bindsMap[remote];
+				if ( typeof bind != 'object' ) {
+					return '';
+				}
+
+				if ( WEB_CONF['debug'] === true ) { 
+					return bind['origin'];
+				} else {
+					return bind['url'];
+				}
+
+				return '';
+
+			})).on('error', reject)
+
 			.pipe(gulp.dest(out)).on('end', resolve);
 	});
 }
@@ -250,6 +280,15 @@ function copyJSON( src ) {
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
 
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
+
 	if ( scriptArr[1] != 'json') return;
 
 	return new Promise( function( resolve, reject) {
@@ -258,6 +297,27 @@ function copyJSON( src ) {
 			gutil.log('\tdst=', dst );
 			gutil.log('\tout=', out );
 		pipe = gulp.src(src)
+
+			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+
+				// gutil.log( '\tmatch=', match);
+				
+				let remote = p1.replace('__PROJECT_NAME', project );
+				let bind =  bindsMap[remote];
+				if ( typeof bind != 'object' ) {
+					return '';
+				}
+
+				if ( WEB_CONF['debug'] === true ) { 
+					return bind['origin'];
+				} else {
+					return bind['url'];
+				}
+
+				return '';
+
+			})).on('error', reject)
+
 			.pipe(gulp.dest(out)).on('end', resolve);
 	});
 
@@ -269,6 +329,15 @@ function compileStyle ( src ){
 	let script = src.replace(__WEB_ROOT__, '').replace(/\\/g, '/');
 	let scriptArr = script.split('.');
 	let dst = '/web' + scriptArr[0];
+
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 
 	if ( scriptArr[1] != 'less') return;
 
@@ -283,6 +352,25 @@ function compileStyle ( src ){
 			.pipe(less({
 				paths:[__WEB_ROOT__]
 			})).on('error', reject)
+
+			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+			
+				let remote = p1.replace('__PROJECT_NAME', project );
+				let bind =  bindsMap[remote];
+				if ( typeof bind != 'object' ) {
+					return '';
+				}
+
+				if ( WEB_CONF['debug'] === true ) { 
+					return bind['origin'];
+				} else {
+					return bind['url'];
+				}
+
+				return '';
+
+			})).on('error', reject)
+
 			.pipe(gulp.dest(out)).on('end', resolve);
 	});
 }
@@ -397,6 +485,15 @@ function web_script() {
 	let scripts = {
 		"/web/web.js": path.join(path.resolve(__dirname, './web') ,  '/web.js')
 	};
+
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 	
 	WEB_PAGES.map(function( name, idx ){
 		scripts['/web' + name ] =  path.join(path.resolve(__dirname, './web' ) , name + '.js');
@@ -416,10 +513,33 @@ function web_script() {
 				gutil.log('\tout=',  out );
 
 			gulp.src(src).on('error', reject)
+
+
 				.pipe(tap(function (file) {
 					let b = browserify(file.path);
 					file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
 				})).on('error', reject)
+
+				.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+
+					// gutil.log( '\tmatch=', match);
+					
+					let remote = p1.replace('__PROJECT_NAME', project );
+					let bind =  bindsMap[remote];
+					if ( typeof bind != 'object' ) {
+						return '';
+					}
+
+					if ( WEB_CONF['debug'] === true ) { 
+						return bind['origin'];
+					} else {
+						return bind['url'];
+					}
+
+					return '';
+
+				})).on('error', reject)
+
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
@@ -432,6 +552,15 @@ function web_json() {
 	let scripts = {
 		"/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/web.json')
 	};
+
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 	
 	WEB_PAGES.map(function( name, idx ){
 		scripts['/web' + name ] = path.join(path.resolve(__dirname, './web' ) , name + '.json');
@@ -450,6 +579,25 @@ function web_json() {
 				gutil.log('\tout=',  out );
 
 			pipe = gulp.src(src).on('error', reject)
+				.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+
+					// gutil.log( '\tmatch=', match);
+					
+					let remote = p1.replace('__PROJECT_NAME', project );
+					let bind =  bindsMap[remote];
+					if ( typeof bind != 'object' ) {
+						return '';
+					}
+
+					if ( WEB_CONF['debug'] === true ) { 
+						return bind['origin'];
+					} else {
+						return bind['url'];
+					}
+
+					return '';
+
+				})).on('error', reject)
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
@@ -465,6 +613,15 @@ function web_style() {
 	let scripts = {
 		"/web/web.less": path.join(path.resolve(__dirname, './web') ,  '/web.less')
 	};
+
+	let binds = _stor_binds(); 
+	let bindsMap = {};
+	let conf = CONF.mina;
+	let project = conf.project || 'default';
+	for( let i=0; i<binds.length; i++ ) {
+		let bind = binds[i];
+		bindsMap[bind['remote']] = bind;
+	}
 	
 	WEB_PAGES.map(function( name, idx ){
 		scripts['/web' + name ] =  path.join(path.resolve(__dirname, './web' ) , name + '.less');
@@ -484,6 +641,23 @@ function web_style() {
 			pipe = gulp.src(src).on('error', reject)
 				.pipe(less({
 					paths:[__WEB_ROOT__]
+				})).on('error', reject)
+				.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+				
+					let remote = p1.replace('__PROJECT_NAME', project );
+					let bind =  bindsMap[remote];
+					if ( typeof bind != 'object' ) {
+						return '';
+					}
+
+					if ( WEB_CONF['debug'] === true ) { 
+						return bind['origin'];
+					} else {
+						return bind['url'];
+					}
+
+					return '';
+
 				})).on('error', reject)
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
