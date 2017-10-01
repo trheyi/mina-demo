@@ -245,8 +245,9 @@ function compileScript( src ) {
 
 		gulp.src(src)
 			.pipe(tap(function (file) {
-				let b = browserify(file.path);
-				file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
+				let b = browserify(file.path);	
+				file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle().on('error', reject);
+
 			})).on('error', reject)
 
 
@@ -516,8 +517,11 @@ function web_script() {
 
 
 				.pipe(tap(function (file) {
-					let b = browserify(file.path);
-					file.contents = b.transform("babelify", {presets: ["es2015"]}).bundle();
+					
+						let b = browserify(file.path);
+						let t = b.transform("babelify", {presets: ["es2015"]});
+						file.contents = t.bundle().on('error', reject );
+				
 				})).on('error', reject)
 
 				.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
@@ -799,6 +803,9 @@ gulp.task('web-zip', function( cb ){
 				.pipe(zip('web.zip')).on('error', reject)
 				.pipe(gulp.dest(BUILD_PATH)).on('error', reject).on('end', resolve);
 			gutil.log('web-zip 完成');
+		}).catch(function(error){
+			console.log(error);
+			gutil.log('web-zip 失败');
 		});
 	});
 	
@@ -939,6 +946,10 @@ gulp.task('web-watch', function() {
 			if ( ext == '.js' ) {
 				compileScript(event.path).then( function(){
 					return gulp.start('web-sync-page-only');
+				})
+				.catch( function(error){
+					console.log( error );
+					gutil.log(event.path, '编译失败');
 				});
 			}
 
