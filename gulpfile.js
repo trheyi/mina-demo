@@ -843,6 +843,7 @@ gulp.task('web-compile', ['web-sync-page'], function() {
 			})
 	});
 
+
 	return task.then(function(){
 		gutil.log('web-compile 完成');
 	}).catch( function(){
@@ -874,6 +875,9 @@ gulp.task('web-sync-static', function() {
 
 	return  Promise.all(tasks).then( function(){
 		gutil.log('web-sync-static 完成');
+	}).catch( function(error){
+		gutil.log('web-sync-static 错误');
+		gutil.log( error );
 	});
 	
 });
@@ -977,12 +981,10 @@ gulp.task('web-watch', function() {
 		}
 
 	});
-
-
 });
 
 gulp.task('web', ['clean', 'web-sync-static',  'web-compile']);
-gulp.task('watch',['web', 'web-watch']);
+gulp.task('watch',['web-watch']);
 
 
 // ************************************************************************
