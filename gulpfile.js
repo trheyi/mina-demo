@@ -145,6 +145,11 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 				res = res || {};
 
 				if ( WEB_CONF['debug'] === true ) {
+
+					if ( typeof data == "undefined" || data == null ) {
+						data = "未知错误";
+					}
+					
 					gutil.log( '========== DEBUG HTTP RESPONSE CODE: ' , res.statusCode ,  "==============");
 					gutil.log( '========== DEBUG HTTP RESPONSE BODY:  ==================\n' , data.toString(), "\n===================================================================");
 				}
@@ -193,7 +198,8 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 			return;
 		}
 
-		objectMerge( params, options );
+		// timeout 60s
+		objectMerge( params, {timeout:60000},  options );
 		gulp.src( file ).pipe( upload(params) );
 	})
 }
