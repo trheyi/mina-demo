@@ -1,0 +1,15 @@
+/**index.wxss**/
+.components-list, .pages-list  {
+	width: 100%;
+}
+
+.components {
+	margin-top: 30rpx;
+}
+
+.components-list button:first-child, .pages-list button:first-child{
+	margin-top: 30rpx;
+}
+.components-list button, .pages-list button{
+	margin-bottom: 20rpx;
+}

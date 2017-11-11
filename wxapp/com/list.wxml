@@ -1,0 +1,16 @@
+<view class="container">
+	<view class="loading"  wx:if="{{_dataview.loadingTop}}" >顶部 >> 载入中...</view>
+	<scroll-view 
+		class="data-view"
+		scroll-x="false"
+		scroll-y="true"
+		upper-threshold="10"
+		lower-threshold="50"
+		style="height:{{_dataview.height}}px"
+		bindscrolltoupper="event_upper" bindscrolltolower="event_lower" bindscroll="event_scroll" >
+		<view class="item" wx:for="{{_dataview.items}}">{{item.name}}</view>
+		<view class="loading"  wx:if="{{_dataview.loadingBottom}}" >底部 >> 载入中...</view>
+	</scroll-view>
+
+	<button type="primary" size="default" bindtap="refresh" style="width:100%;margin-top:20rpx;"  > 刷新</button>
+</view>

@@ -1,0 +1,13 @@
+<!--index.wxml-->
+<view class="container">
+	
+	<view class="pages">XpmJS API</view>
+	<view class="pages-list">
+		<button type="primary" size="default" wx:for="{{pages}}"  > {{item.name}} </button>
+	</view>
+
+	<view class="components">UI组件</view>
+	<view class="components-list">
+		<button type="primary" size="default" bindtap="navigateTo" data-route="{{item.route}}" wx:for="{{components}}"  > {{item.name}} </button>
+	</view>
+</view>
