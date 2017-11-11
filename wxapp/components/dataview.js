@@ -126,6 +126,10 @@ class DataView {
 	 */
 	next() {
 
+		if ( this.islocked() ) {
+			return;
+		}
+
 		let pinfo = this.getData('pinfo') || {};
 		let next = pinfo['next'];
 		if ( next == false) {
@@ -150,6 +154,10 @@ class DataView {
 	 * @return {[type]} [description]
 	 */
 	refresh() {
+
+		if ( this.islocked() ) {
+			return;
+		}
 
 		this.resetData({items:[], pinfo:{}});
 		this.setData({items:[], pinfo:{}}, true);
@@ -209,11 +217,7 @@ class DataView {
 	 * @return {[type]} [description]
 	 */
 	get() {
-
-		if ( this.islocked() ) {
-			return;
-		}
-
+		
 		var that = this;
 		this.lock();
 
