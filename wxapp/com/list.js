@@ -6,7 +6,7 @@ Page({
 	onLoad:function(){
 		this.dataview = new DataView( 
 			this, app.xpm, {
-				api:'nhfpc/microsite/medicine/search',
+				api:'nhfpc/microsite/company/search',
 				offsetHeight:140
 			}
 		);
