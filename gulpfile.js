@@ -2,7 +2,6 @@ let path = require('path');
 let fs = require('fs');
 let del = require('del');
 
-
 let gulp = require('gulp');
 var gutil = require('gulp-util');
 var tap = require('gulp-tap');
@@ -22,8 +21,16 @@ let sync = require(path.resolve("./gulp-plugins/sync"));
 // 系统信息
 let __WEB_ROOT__ = path.resolve(__dirname, './web');
 
+let online = process.env.online;
+let CONF = [];
 
-let CONF = require(path.resolve('./config.js'));
+if ( typeof online != 'undefined' && fs.existsSync(path.resolve('./config-online.js')) ) {
+	CONF = require(path.resolve('./config-online.js'));
+} else {
+	CONF = require(path.resolve('./config.js'));
+}
+
+
 let WEB_CONF = JSON.parse(fs.readFileSync( path.resolve(__dirname, './web/web.json') ));
 let WEB_PAGES = WEB_CONF['pages'] || [];
 let WEB_COMMONS = WEB_CONF['common'] || [];
@@ -33,12 +40,66 @@ let WEB_COMMONS = WEB_CONF['common'] || [];
 	
 let WEB_STORAGE = WEB_CONF['storage'] || [];
 
-
+setOptions();
 
 // 全局变量
 let TMP_PATH = path.resolve(__dirname + '/.tmp');
 let CACHE_PATH = path.resolve(__dirname + '/.cache');
 let BUILD_PATH = CONF.mina['target'] || TMP_PATH;
+
+function setOptions() {
+
+	WEB_STORAGE['options'] =  WEB_STORAGE['options'] || [];
+	WEB_STORAGE['pages'] =  WEB_STORAGE['pages'] || [];
+	WEB_STORAGE['binds']  = WEB_STORAGE['binds'] || [];
+
+	if ( typeof WEB_STORAGE['options']['prefix'] == 'undefined' ) {
+		WEB_STORAGE['options']['prefix'] = CONF['mina']['project'];
+	}
+
+	if ( typeof WEB_STORAGE['options']['server'] == 'undefined' ) {
+		WEB_STORAGE['options']['server'] = CONF['mina']['server'];
+	}
+
+	if ( typeof WEB_STORAGE['options']['appid'] == 'undefined' ) {
+		WEB_STORAGE['options']['appid'] = CONF['mina']['appid'];
+	}
+
+	if ( typeof WEB_STORAGE['options']['secret'] == 'undefined' ) {
+		WEB_STORAGE['options']['secret'] = CONF['mina']['secret'];
+	}
+
+	if ( typeof WEB_STORAGE['options']['url'] == 'undefined' ) {
+		WEB_STORAGE['options']['url'] = '/static-file/' + CONF['mina']['project'];
+	}
+
+	if ( typeof WEB_STORAGE['options']['origin'] == 'undefined' ) {
+		WEB_STORAGE['options']['origin'] = '/static-file/' + CONF['mina']['project'];
+	}
+
+
+	for( var key in WEB_STORAGE['pages'] ) {
+		if ( typeof WEB_STORAGE['pages'][key] == 'string' ) {
+			WEB_STORAGE['pages'][key] = WEB_STORAGE['pages'][key].replace('{PROJECT_NAME}', CONF['mina']['project'] );
+		}
+	}
+
+
+	for( var i in WEB_STORAGE['binds'] ) {
+
+		if ( typeof WEB_STORAGE['binds'][i] != 'object') {
+			continue;
+		}
+
+		for( key in WEB_STORAGE['binds'][i] ) {
+			if ( typeof WEB_STORAGE['binds'][i][key] == 'string' ) {
+				WEB_STORAGE['binds'][i][key] = WEB_STORAGE['binds'][i][key].replace('{PROJECT_NAME}', CONF['mina']['project'] );
+			}
+		}
+	}
+}
+
+
 
 
 /**
@@ -210,6 +271,8 @@ function _stor( options = {} ) {
 	let opts = {};
 	objectMerge(opts,  WEB_STORAGE['options'], options);
 	let Storage = require(path.resolve('./gulp-plugins/storage/' + engine));
+
+
 	return new Storage( opts );
 }
 
@@ -822,7 +885,6 @@ gulp.task('web-zip', function( cb ){
 gulp.task('web-compile', ['web-sync-page'], function() {
 
 	let task = new Promise( function( resolve, reject ) {
-
 		uploadFile( BUILD_PATH + '/web.zip', { data:{
 				type:"zip"
 			}})
@@ -852,7 +914,8 @@ gulp.task('web-compile', ['web-sync-page'], function() {
 
 	return task.then(function(){
 		gutil.log('web-compile 完成');
-	}).catch( function(){
+	}).catch( function(e){
+		console.log( e );
 		gutil.log('web-compile 错误');
 	});
 });
@@ -991,6 +1054,9 @@ gulp.task('web-watch', function() {
 
 gulp.task('web', ['clean', 'web-sync-static',  'web-compile']);
 gulp.task('watch',['web-watch']);
+gulp.task('default',['watch']);
+
+
 
 
 // ************************************************************************

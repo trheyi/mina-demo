@@ -9,25 +9,19 @@
 	"storage": {
 		"engine":"minapages",
 		"options":{
-			"debug":true,
-			"server":"https://xxx.com",
-			"url":"/static-file/deepblue",
-			"origin":"/static-file/deepblue",
-			"prefix":"/deepblue",
-			"appid": "xxx.sl2",
-			"secret":"xxxjdjs"
+			"debug":true
 		},
 		"pages":{
-			"remote": "/deepblue/pages",
-			"url": "/static-file/deepblue/pages",
-			"origin": "/static-file/deepblue/pages"
+			"remote": "/{PROJECT_NAME}/user/pages",
+			"url": "/static-file/{PROJECT_NAME}/user/pages",
+			"origin": "/static-file/{PROJECT_NAME}/user/pages"
 		},
 		"binds": [
 			{
-				"local": "/web/assets",
-				"remote": "/deepblue/assets",
-				"url": "/static-file/deepblue/assets",
-				"origin": "/static-file/deepblue/assets"
+				"local": "/web/user/assets",
+				"remote": "/{PROJECT_NAME}/user/assets",
+				"url": "/static-file/{PROJECT_NAME}/user/assets",
+				"origin": "/static-file/{PROJECT_NAME}/user/assets"
 			}
 		]
 	},
