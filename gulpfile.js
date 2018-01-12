@@ -24,8 +24,15 @@ let __WEB_ROOT__ = path.resolve(__dirname, './web');
 let online = process.env.online;
 let CONF = [];
 
-if ( typeof online != 'undefined' && fs.existsSync(path.resolve('./config-online.js')) ) {
-	CONF = require(path.resolve('./config-online.js'));
+if ( typeof online != 'undefined' ) {
+
+	if ( fs.existsSync( path.resolve('./config-' + online + '.js') ) ) {
+		CONF = require(path.resolve('./config-'+ online +'.js'));	
+	} else if (fs.existsSync( path.resolve('./config-online.js') )) {
+		CONF = require(path.resolve('./config-online.js'));	
+	} else {
+		CONF = require(path.resolve('./config.js'));
+	}
 } else {
 	CONF = require(path.resolve('./config.js'));
 }
