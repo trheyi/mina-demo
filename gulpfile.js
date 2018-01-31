@@ -188,26 +188,13 @@ function objectMerge(target, ...sources) {
 
 // 全局函数
 function uploadFile( file, options={}  ) { // 上传文件到指定地址
-		
-	// options['data'] = options['data'] || {};
-	// objectMerge(options['data'], {
-	// 	appid: conf.appid,
-	// 	secret: conf.secret,
-	// 	project: conf.project
-	// });
 
 	return new Promise(function( resolve, reject){
 		let conf = CONF.mina;
 		let params = {
 			server:conf.server + '/_a/mina/dev/compile',
 			headers:{ "Accept":"application/json"},
-			data:{
-				appid: conf.appid,
-				secret: conf.secret,
-				project: conf.project,
-				server: conf.server,
-				domain: conf.domain
-			},
+			data: conf,
 			callback: function (err, data, res) {
 
 				res = res || {};
