@@ -190,11 +190,20 @@ function objectMerge(target, ...sources) {
 function uploadFile( file, options={}  ) { // 上传文件到指定地址
 
 	return new Promise(function( resolve, reject){
-		let conf = CONF.mina;
+		let conf = CONF.mina || {};
+			conf.priority = conf.priority || 0;
+		// console.log( conf );
 		let params = {
 			server:conf.server + '/_a/mina/dev/compile',
 			headers:{ "Accept":"application/json"},
-			data: conf,
+			data: {
+				appid: conf.appid,
+				secret: conf.secret,
+				priority: conf.priority,
+				project: conf.project,
+				server: conf.server,
+				domain: conf.domain
+			},
 			callback: function (err, data, res) {
 
 				res = res || {};
