@@ -1080,6 +1080,7 @@ function replaceKey( content, vars ) {
 		content = content.replace(exp1, "'"+key+"':\""+vars[key]+"\"");
 		content = content.replace(exp2, "\""+key+"\":\""+vars[key]+"\"");
 		content = content.replace(exp3,""+key+"=\""+vars[key]+"\"");
+
 	}
 	return content;
 }
@@ -1103,7 +1104,7 @@ let wxapp_newconf = require(__WXAPP_CONF__);
 let version = wxapp_newconf['version'] || '1.0.0';
 let wxapp_upload = wxapp + ' -u '+version+'@' + __WXAPP_ROOT__ + ' --upload-desc \'\'\'auto-release@' + timestamp + '\'\'\'';
 
-console.log( wxapp_upload );
+
 
 gulp.task('wxapp-login', shell.task(wxapp_login));
 gulp.task('wxapp-upload', shell.task(wxapp_upload) );
