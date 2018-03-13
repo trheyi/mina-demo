@@ -12,6 +12,7 @@ let browserify = require('browserify');
 let less = require('gulp-less');
 let upload = require('gulp-upload');
 let zip = require('gulp-zip');
+let shell = require('gulp-shell');
 
 
 let include = require(path.resolve('./gulp-plugins/include'));
@@ -244,7 +245,7 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 			    		reject({
 							code:500, 
 							message:'JSON 解析错误', 
-							extra:{statusCode:res.statusCode, body:data.toString()}
+							extra:{file:file, statusCode:res.statusCode, body:data.toString()}
 						});
 						return;
 			    	}
@@ -1061,10 +1062,52 @@ gulp.task('default',['watch']);
 
 
 
-
 // ************************************************************************
 //     小程序端编译
 // ************************************************************************
+
+let __WXAPP_ROOT__ = path.resolve(__dirname, './wxapp');
+let __WXAPP_CONF__ = path.resolve(__dirname, './wxapp/config.js');
+let wxapp = CONF['wxapp']['cli'];
+let wxapp_login = wxapp + ' -l';
+let wxapp_conf = 'cd ' + __dirname  + ' && gulp wxapp-config';
+
+function replaceKey( content, vars ) {
+	for ( var key in vars ) {
+		let exp1 = new RegExp("'"+key+"'[ ]*:[\"\' ]+.+[\"\' ]+", 'gi');
+		let exp2 = new RegExp("[\"\' ]+"+key+"[\"\' ]+[ ]*:[\"\' ]+.+[\"\' ]+", 'gi');
+		let exp3 = new RegExp(""+key+"[ ]*=[ ]*[\"\' ]+.+[\"\' ]+", 'gi');
+		content = content.replace(exp1, "'"+key+"':\""+vars[key]+"\"");
+		content = content.replace(exp2, "\""+key+"\":\""+vars[key]+"\"");
+		content = content.replace(exp3,""+key+"=\""+vars[key]+"\"");
+	}
+	return content;
+}
+
+gulp.task('wxapp-config',()=>{
+
+	let content = fs.readFileSync(__WXAPP_CONF__, 'utf8');
+	content = replaceKey( content, {
+		host:CONF['mina']['domain'], 
+		https:CONF['mina']['domain'], 
+		wss:CONF['mina']['domain'] + '/ws-server', 
+		appid:CONF['wxapp']['appid'], 
+		secret:CONF['mina']['appid'] + '|' +CONF['mina']['secret']
+	});
+
+	fs.writeFileSync(__WXAPP_CONF__, content);
+});
+
+let timestamp = Date.parse(new Date());
+let wxapp_newconf = require(__WXAPP_CONF__);
+let version = wxapp_newconf['version'] || '1.0.0';
+let wxapp_upload = wxapp + ' -u '+version+'@' + __WXAPP_ROOT__ + ' --upload-desc \'\'\'auto-release@' + timestamp + '\'\'\'';
+
+console.log( wxapp_upload );
+
+gulp.task('wxapp-login', shell.task(wxapp_login));
+gulp.task('wxapp-upload', shell.task(wxapp_upload) );
+gulp.task('wxapp', shell.task( wxapp_conf + ' && ' + wxapp_login + ' && ' + wxapp_upload ) );
 
 
 
