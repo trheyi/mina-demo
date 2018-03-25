@@ -480,8 +480,8 @@ function mergePage( src ){
 			.pipe(replace(/__WEB_ROOT__/g, ':' + __WEB_ROOT__)).on('error', reject)
 			.pipe(include()).on('error', reject)
 			.pipe(include_import()).on('error', reject)
-			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
-
+			.pipe(replace(/\{\{__STOR__\:\:([^\{\{]+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
+				
 				let remote = p1.replace('__PROJECT_NAME', project );
 				let bind =  bindsMap[remote];
 				if ( typeof bind != 'object' ) {
