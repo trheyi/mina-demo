@@ -23,7 +23,12 @@ let sync = require(path.resolve("./gulp-plugins/sync"));
 let __WEB_ROOT__ = path.resolve(__dirname, './web');
 
 let online = process.env.online;
+let debug = process.env.debug;
+let WEB_JSON_FN =( debug && fs.existsSync(path.resolve('./web/_debug/web.json'))) ? '_debug/web.json' : 'web.json';
 let CONF = [];
+
+// console.log(WEB_JSON_FN, path.resolve('./web/_debug/web.json') );
+// process.exit();
 
 if ( typeof online != 'undefined' ) {
 
@@ -39,11 +44,14 @@ if ( typeof online != 'undefined' ) {
 }
 
 
-let WEB_CONF = JSON.parse(fs.readFileSync( path.resolve(__dirname, './web/web.json') ));
+// 初始值
+CONF.mina['instance'] =  CONF.mina['instance'] || "";
+
+let WEB_CONF = JSON.parse(fs.readFileSync( path.resolve(__dirname, './web/' + WEB_JSON_FN ) ));
 let WEB_PAGES = WEB_CONF['pages'] || [];
 let WEB_COMMONS = WEB_CONF['common'] || [];
 	WEB_COMMONS.push('/web.js') ;
-	WEB_COMMONS.push('/web.json') ;
+	WEB_COMMONS.push('/' + WEB_JSON_FN ) ;
 	WEB_COMMONS.push('/web.less') ;
 	
 let WEB_STORAGE = WEB_CONF['storage'] || [];
@@ -194,6 +202,11 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 		let conf = CONF.mina || {};
 			conf.priority = conf.priority || 0;
 		// console.log( conf );
+
+
+		var instance = conf.instance ? conf.instance : '';
+
+
 		let params = {
 			server:conf.server + '/_a/mina/dev/compile',
 			headers:{ "Accept":"application/json"},
@@ -203,7 +216,8 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 				priority: conf.priority,
 				project: conf.project,
 				server: conf.server,
-				domain: conf.domain
+				domain: conf.domain,
+				instance: instance
 			},
 			callback: function (err, data, res) {
 
@@ -627,8 +641,9 @@ function web_script() {
 // Copy JSON DATA 
 function web_json() {
 	let scripts = {
-		"/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/web.json')
+		"/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/' + WEB_JSON_FN )
 	};
+
 
 	let binds = _stor_binds(); 
 	let bindsMap = {};
@@ -678,6 +693,8 @@ function web_json() {
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
+
+	console.log( tasks );
 
 	return  Promise.all(tasks);
 }
@@ -1068,7 +1085,8 @@ gulp.task('default',['watch']);
 
 let __WXAPP_ROOT__ = path.resolve(__dirname, './wxapp');
 let __WXAPP_CONF__ = path.resolve(__dirname, './wxapp/config.js');
-let wxapp = CONF['wxapp']['cli'];
+let wxapp = '';
+try { wxapp = CONF['wxapp']['cli']; } catch(e) {}
 let wxapp_login = wxapp + ' -l';
 let wxapp_conf = 'cd ' + __dirname  + ' && gulp wxapp-config';
 
@@ -1091,6 +1109,7 @@ gulp.task('wxapp-config',()=>{
 	content = replaceKey( content, {
 		host:CONF['mina']['domain'], 
 		https:CONF['mina']['domain'], 
+		instance:CONF['mina']['instance'], 
 		wss:CONF['mina']['domain'] + '/ws-server', 
 		appid:CONF['wxapp']['appid'], 
 		secret:CONF['mina']['appid'] + '|' +CONF['mina']['secret']
@@ -1099,8 +1118,9 @@ gulp.task('wxapp-config',()=>{
 	fs.writeFileSync(__WXAPP_CONF__, content);
 });
 
+let wxapp_newconf = {};
 let timestamp = Date.parse(new Date());
-let wxapp_newconf = require(__WXAPP_CONF__);
+try { wxapp_newconf = require(__WXAPP_CONF__); } catch(e){}
 let version = wxapp_newconf['version'] || '1.0.0';
 let wxapp_upload = wxapp + ' -u '+version+'@' + __WXAPP_ROOT__ + ' --upload-desc \'\'\'auto-release@' + timestamp + '\'\'\'';
 
