@@ -24,8 +24,7 @@ class Minapages extends Base {
 				}
 			},
 			name: dst.replace(/\\/g, '/'),
-            op:'upload',
-            instance: this.options['instance'],
+			op:'upload',
 			appid: this.options['appid'],
 			secret: this.options['secret']
 		};
@@ -42,8 +41,7 @@ class Minapages extends Base {
 	remoteDelete( dst ) {
 		let postData = {
 			name: dst.replace(/\\/g, '/'),
-            op:'delete',
-            instance: this.options['instance'],
+			op:'delete',
 			appid: this.options['appid'],
 			secret: this.options['secret']
 		};
