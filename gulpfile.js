@@ -1,3 +1,12 @@
+/**
+ * 简墨引擎页面构建工具
+ * 
+ * @version 1.9.2 
+ * @author Max<https://github.com/trheyi>
+ * @license Apache 2.0 license <https://www.apache.org/licenses/LICENSE-2.0>
+ * @copyright 2019 Jianmo.ink
+ */
+
 let path = require('path');
 let fs = require('fs');
 let del = require('del');
@@ -24,7 +33,19 @@ let __WEB_ROOT__ = path.resolve(__dirname, './web');
 
 let online = process.env.online;
 let debug = process.env.debug;
+
+// 页面配置
 let WEB_JSON_FN =( debug && fs.existsSync(path.resolve('./web/_debug/web.json'))) ? '_debug/web.json' : 'web.json';
+
+// 设定全局数据
+let GLOBAL_JSON_FN =( debug && fs.existsSync(path.resolve('./web/_debug/global.json'))) ? '_debug/global.json' : 'global.json';
+let GLOBAL_JSON_File = path.resolve(path.join(__WEB_ROOT__ , GLOBAL_JSON_FN ));
+if ( !fs.existsSync( GLOBAL_JSON_File) ) {
+    GLOBAL_JSON_File = null;
+}
+
+
+// 配置文件
 let CONF = [];
 
 // console.log(WEB_JSON_FN, path.resolve('./web/_debug/web.json') );
@@ -377,13 +398,18 @@ function copyJSON( src ) {
 		bindsMap[bind['remote']] = bind;
 	}
 
-	if ( scriptArr[1] != 'json') return;
+    if ( scriptArr[1] != 'json') return;
+
+    if ( GLOBAL_JSON_File != null ) {
+        src = [src, GLOBAL_JSON_File];
+    }
 
 	return new Promise( function( resolve, reject) {
 		let out =  path.join(BUILD_PATH , dst + '/../');
 		gutil.log('复制' + dst + '.json ...');
-			gutil.log('\tdst=', dst );
-			gutil.log('\tout=', out );
+		    gutil.log('\tdst=', dst );
+            gutil.log('\tout=', out );
+            
 		pipe = gulp.src(src)
 
 			.pipe(replace(/\{\{__STOR__\:\:(.+)\}\}/g, function( match, p1, offset, string ) {// let reg = new RegExp("\{\{__STOR__\:\:(.+)\}\}", "g");
@@ -524,28 +550,32 @@ function compilePage( src ) {
 	let page = scriptArr[0];
 	let webpath =  path.join(BUILD_PATH, '/web');
 	let dirs = page.split('/');
-		dirs[1] = '+('+dirs[1]+')'
+        dirs[1] = '+('+dirs[1]+')'
+    
+        // 全局 JSON 文件
+    let global_json_dirs = page.split('/');
+        global_json_dirs[1] = '+('+global_json_dirs[1]+')'
+        global_json_dirs.splice(-1,1);
 
 	return new Promise( function( resolve, reject) {
 
 		let zipfile = 'web' + page.replace(/\//g,'_') + '.zip';
-		let pageroot = path.join(BUILD_PATH , '/web' , dirs.join('/') +  '.*');
-		gutil.log('compilePage');
+        let pageroot = path.join(BUILD_PATH , '/web' , dirs.join('/') +  '.*');
+        let global_json = null;
+        let pagesrc = pageroot;
+        if ( GLOBAL_JSON_File != null ) {
+            global_json = path.join(BUILD_PATH , '/web' , global_json_dirs.join('/') +  '/global.json');
+            pagesrc = [ pagesrc, global_json];
+        }
+
+		gutil.log('\t------------------');
 		gutil.log('\tsrc=', src);
 		gutil.log('\tpage=', page);
-		gutil.log('\tdirs=', dirs);
 		gutil.log('\tdst=', dst);
 		gutil.log('\tzipfile=', zipfile);
-		gutil.log('\tpageroot=', pageroot);
+        gutil.log('\tpagesrc  =', pagesrc.join(','));
 
-
-		// console.log(pageroot, dirs);
-		// var glob = require('glob');
-		// glob(pageroot, function(err, files) {
-		//     console.log(files);
-		// });
-
-		gulp.src(  pageroot )
+		gulp.src( pagesrc )
 			.pipe(zip(zipfile))
 			.pipe(gulp.dest(BUILD_PATH))
 			.on('end', function(){
@@ -693,8 +723,6 @@ function web_json() {
 				.pipe(gulp.dest(out)).on('error', reject).on('end', resolve);
 		}));
 	}
-
-	console.log( tasks );
 
 	return  Promise.all(tasks);
 }
@@ -961,7 +989,7 @@ gulp.task('web-sync-static', function() {
 					nodelete:false		
 				})).on('error', reject).on('end', resolve)
 		}));
-    });
+	});
 
 	return  Promise.all(tasks).then( function(){
 		gutil.log('web-sync-static 完成');
