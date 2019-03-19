@@ -1,0 +1,25 @@
+四大核心特性: Why US
+多语言: Multiple Language
+TARS支持: TARS Support
+等多种语言: multiple language
+敏捷开发: Agile Development
+快速构建: Build Quilkly
+自动代码生成: Code Generator
+持续集成: CI Support
+高可用: High Availability
+服务发现: Service Discovery
+容灾容错: Disaster Tolerance
+智能调度: Intelligent Scheduling
+高效运营: Efficient Operation
+无损变更: Lossless Change
+立体化监控: Monitor
+可视化管理: Visual Management
+产品功能: Featrure
+高性能RPC: High performance RPC
+开发框架和: Framework And
+运营管理: Management
+平台: Platform
+Linux基金会是非营利性的联盟，致力于促进Linux的发展，提供一个Linux作为协作和教育的平台，产生了原创性研究和相关内容，并通过这个平台促进Linux的发展。通过网络，每月大约有两百万网民接触到该基金会。它还通过举办合作活动促进创新- Linux技术社区，应用开发商，行业和最终用户解决Linux生态系统面临的紧迫问题，包括LinuxCon等。通过Linux基金会的合作计划，最终可以解决用户，开发和产业合作，技术，法律和宣传的问题。: The Linux Foundation is a non-profit alliance dedicated to promoting the development of Linux by providing a platform for collaboration and education, generating original research and related content, and promoting Linux through this platform. Through the network, about two million Internet users come into contact with the foundation every month. It also promotes innovation by organizing collaborative events - the Linux technology community, application developers, industry and end users to address pressing issues facing the Linux ecosystem, including LinuxCon. Through the Linux Foundation's collaborative program, you can ultimately solve user, development and industrial cooperation, technical, legal and promotional issues.
+支持C++、Java、PHP、Nodejs编程语言；开发、部署、测试、上线、运维全部搞定！: Support C++, Java, PHP, Nodejs programming language; development, deployment, testing, online, operation and maintenance all done!
+TARS协议: Tars Protocol
+tars协议采用IDL实现二进制多平台的协议，在不同平台上运行的对象和用不 同语言编写的程序可以用RPC远程调用的方式相互通信交流。: The tars protocol uses IDL to implement a binary multi-platform protocol. Objects running on different platforms and programs written in different languages can communicate with each other using RPC remote calls.
