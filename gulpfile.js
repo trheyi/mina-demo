@@ -671,9 +671,13 @@ function web_script() {
 // Copy JSON DATA 
 function web_json() {
 	let scripts = {
-		"/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/' + WEB_JSON_FN )
+        "/web/web.json": path.join(path.resolve(__dirname, './web') ,  '/' + WEB_JSON_FN )
 	};
 
+    // + global json
+    if ( GLOBAL_JSON_File != null ) {
+        scripts["/web/global.json"] = path.resolve(GLOBAL_JSON_File);
+    }
 
 	let binds = _stor_binds(); 
 	let bindsMap = {};
@@ -1263,5 +1267,5 @@ gulp.task('wxapp', shell.task( wxapp_conf + ' && ' + wxapp_login + ' && ' + wxap
 // ************************************************************************
  
 gulp.task("version", ()=>{
-    gutil.log("Version 1.9.2, Updated at 2019-03-20 00:30:21");
+    gutil.log("Version 1.9.2, Updated at 2019-03-20 00:40:21");
 });
