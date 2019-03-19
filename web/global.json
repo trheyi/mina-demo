@@ -1,0 +1,9 @@
+{
+    "site":{
+        "api":"/xpmsns/pages/siteconf/get",
+        "query":{
+            "site_slug":"global",
+            "select":"*"
+        }
+    }
+}
