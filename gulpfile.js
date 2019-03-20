@@ -573,7 +573,7 @@ function compilePage( src ) {
 		gutil.log('\tpage=', page);
 		gutil.log('\tdst=', dst);
 		gutil.log('\tzipfile=', zipfile);
-        gutil.log('\tpagesrc  =', pagesrc.join(','));
+        // gutil.log('\tpagesrc  =', pagesrc.join(','));
 
 		gulp.src( pagesrc )
 			.pipe(zip(zipfile))
