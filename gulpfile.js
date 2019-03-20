@@ -1123,7 +1123,7 @@ function web_lang(){
 	for( let dst in langs) {
 		tasks.push(new Promise( function( resolve, reject) {
 			let src = langs[dst];
-			let out = path.join(BUILD_PATH, dst + '/../');
+			let out = path.join(BUILD_PATH, dst);
 			gutil.log('编译' + dst + '.lang ...');
 				// gutil.log('\tBUILD_PATH=', BUILD_PATH) ;
 				// gutil.log('\tdst=', dst); 
