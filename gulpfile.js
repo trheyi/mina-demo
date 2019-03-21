@@ -237,7 +237,8 @@ function uploadFile( file, options={}  ) { // 上传文件到指定地址
 				priority: conf.priority,
 				project: conf.project,
 				server: conf.server,
-				domain: conf.domain,
+                domain: conf.domain,
+                version: conf.version || "1.0", // API 版本
 				instance: instance
 			},
 			callback: function (err, data, res) {
